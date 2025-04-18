@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Локальный режим - Telegram Mini App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #222222;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .tg-button {
+            background-color: #3390ec;
+            color: #ffffff;
+        }
+        
+        .tg-button:hover {
+            filter: brightness(0.95);
+        }
+        
+        .tg-link {
+            color: #3390ec;
+        }
+        
+        .tg-secondary-bg {
+            background-color: #f0f0f0;
+        }
+        
+        .tg-hint {
+            color: #999999;
+        }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3390ec;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header-banner {
+            background-color: #3390ec;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-banner">
+        <p>⚠️ Локальный режим тестирования - не в Telegram</p>
+    </div>
+    
+    <div id="app" class="flex flex-col min-h-screen">
+        <!-- Контент будет отрисован через JavaScript -->
+        <div id="loading" class="flex items-center justify-center min-h-screen">
+            <div class="loader"></div>
+            <span class="ml-3">Загрузка...</span>
+        </div>
+    </div>
+    
+    <script>
+        // Информация о пользователе
+        window.userInfo = {
+            id: 555299761,
+            first_name: 'Rus',
+            last_name: 'Daurenov',
+            language_code: 'ru'
+        };
+        
+        // Журнал событий для отладки
+        window.appLog = [];
+        const originalConsoleLog = console.log;
+        console.log = function() {
+            window.appLog.push(Array.from(arguments).join(' '));
+            originalConsoleLog.apply(console, arguments);
+            
+            // Ограничиваем размер лога
+            if (window.appLog.length > 100) {
+                window.appLog.shift();
+            }
+        };
+        
+        // Функция для просмотра лога
+        window.showLog = function() {
+            const logContainer = document.createElement('div');
+            logContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 20px;
+                z-index: 9999;
+                overflow: auto;
+                font-family: monospace;
+            `;
+            
+            const closeButton = document.createElement('button');
+            closeButton.innerText = 'Закрыть';
+            closeButton.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                padding: 5px 10px;
+                background: #3390ec;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            `;
+            closeButton.onclick = function() {
+                document.body.removeChild(logContainer);
+            };
+            
+            const logContent = document.createElement('pre');
+            logContent.innerText = window.appLog.join('\n');
+            
+            logContainer.appendChild(closeButton);
+            logContainer.appendChild(logContent);
+            document.body.appendChild(logContainer);
+        };
+        
+        // Добавляем кнопку для просмотра лога
+        document.addEventListener('DOMContentLoaded', function() {
+            const logButton = document.createElement('button');
+            logButton.innerText = 'Показать лог';
+            logButton.style.cssText = `
+                position: fixed;
+                bottom: 70px;
+                right: 10px;
+                padding: 5px 10px;
+                background: #3390ec;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                z-index: 9998;
+                cursor: pointer;
+            `;
+            logButton.onclick = window.showLog;
+            document.body.appendChild(logButton);
+        });
+    </script>
+    
+    <script src="js/main.js" type="module"></script>
+</body>
+</html>

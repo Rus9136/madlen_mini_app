@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест фронтенда</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест доступности файлов фронтенда</h1>
+    
+    <div id="results">
+        <p>Проверка...</p>
+    </div>
+
+    <script>
+        const resultsContainer = document.getElementById('results');
+        
+        // Список файлов для проверки
+        const filesToCheck = [
+            'js/main.js',
+            'js/services/telegram.js',
+            'js/services/auth.js',
+            'js/services/api.js',
+            'js/components/ui.js',
+            'js/pages/home.js',
+            'js/pages/sales.js',
+            'js/pages/notifications.js',
+            'js/pages/processes.js'
+        ];
+        
+        async function checkFile(file) {
+            try {
+                const response = await fetch(file);
+                if (response.ok) {
+                    return { file, status: 'success', statusCode: response.status };
+                } else {
+                    return { file, status: 'error', statusCode: response.status };
+                }
+            } catch (error) {
+                return { file, status: 'error', message: error.message };
+            }
+        }
+        
+        async function runTests() {
+            resultsContainer.innerHTML = '<h2>Проверка файлов:</h2>';
+            
+            let allPassed = true;
+            
+            for (const file of filesToCheck) {
+                const result = await checkFile(file);
+                const statusClass = result.status === 'success' ? 'success' : 'error';
+                const statusText = result.status === 'success' 
+                    ? `Доступен (${result.statusCode})` 
+                    : `Недоступен (${result.statusCode || result.message})`;
+                
+                if (result.status === 'error') {
+                    allPassed = false;
+                }
+                
+                resultsContainer.innerHTML += `
+                    <p>${file}: <span class="${statusClass}">${statusText}</span></p>
+                `;
+            }
+            
+            // Проверяем API
+            try {
+                const apiResult = await fetch('/api/v1/health');
+                const apiStatus = apiResult.ok ? 'success' : 'error';
+                const apiStatusText = apiResult.ok 
+                    ? `Доступен (${apiResult.status})` 
+                    : `Недоступен (${apiResult.status})`;
+                
+                resultsContainer.innerHTML += `
+                    <h2>Проверка API:</h2>
+                    <p>/api/v1/health: <span class="${apiStatus}">${apiStatusText}</span></p>
+                `;
+                
+                if (apiResult.ok) {
+                    const apiData = await apiResult.json();
+                    resultsContainer.innerHTML += `
+                        <pre>${JSON.stringify(apiData, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultsContainer.innerHTML += `
+                    <h2>Проверка API:</h2>
+                    <p>/api/v1/health: <span class="error">Ошибка: ${error.message}</span></p>
+                `;
+            }
+            
+            // Итоговый результат
+            resultsContainer.innerHTML += `
+                <h2>Итог:</h2>
+                <p>Статус: <span class="${allPassed ? 'success' : 'error'}">${allPassed ? 'Все файлы доступны' : 'Некоторые файлы недоступны'}</span></p>
+                <p>Проверьте консоль браузера (F12) для дополнительной информации.</p>
+            `;
+            
+            // Добавим информацию для отладки
+            console.log('Текущий URL:', window.location.href);
+            console.log('User Agent:', navigator.userAgent);
+            console.log('Проверка модулей ES6:');
+            
+            try {
+                // Тестируем импорт ES модулей
+                const module = await import('./js/main.js');
+                console.log('Импорт ES модулей работает:', module);
+            } catch (error) {
+                console.error('Ошибка импорта ES модулей:', error);
+            }
+        }
+        
+        // Запускаем тесты
+        runTests();
+    </script>
+</body>
+</html>
