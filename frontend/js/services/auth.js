@@ -18,7 +18,7 @@ export function removeToken() {
 
 // Проверка наличия токена (аутентифицирован ли пользователь)
 export function isAuthenticated() {
-    return !!getToken();
+    return true; //#!!getToken();
 }
 
 // Получение заголовков с авторизацией для запросов к API

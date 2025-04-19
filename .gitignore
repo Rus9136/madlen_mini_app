@@ -66,5 +66,89 @@ redis_data/
 # Конфиденциальные файлы
 .env
 .env.prod
+.env.local
+.env.development
+.env.production
 credentials.json
 secret_key.json
+
+# Файлы деплоя
+deploy.sh
+docker-compose.prod.yml
+deployment/
+
+# Файлы специфичные для локальной разработки или сервера
+*.local.js
+*.prod.js
+*.local.py
+*.prod.py
+*-local.*
+*-prod.*
+
+# Файлы интеграции с 1С и другими внешними системами
+# backend/app/services/onec_service.py - закомментировано, чтобы остался базовый файл
+
+# Локальные настройки и конфигурации
+local.settings.json
+prod.settings.json
+.localrc
+.prodrc
+
+# Временные файлы бэкапов
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# Файлы отчетов, статистики и данных
+/reports/
+/data/
+/exports/
+*.csv
+*.xls
+*.xlsx
+
+# Сертификаты, ключи и конфиденциальные файлы
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+*.p12
+
+# Файлы настроек npm/yarn
+npm-debug.log
+yarn-error.log
+.npmrc
+.yarnrc
+
+# Docker-специфичные настройки
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.dev.yml
+docker-compose.prod.yml
+docker-compose.*.yml
+.docker-compose-*
+docker/data/
+docker/logs/
+docker/volumes/
+docker/custom/
+
+# Nginx настройки
+nginx/conf.d/local/
+nginx/conf.d/prod/
+nginx/ssl/
+nginx/certs/
+nginx/sites-available/local/
+nginx/sites-available/prod/
+nginx/sites-enabled/local/
+nginx/sites-enabled/prod/
+nginx/*.local.conf
+nginx/*.prod.conf
+nginx/*-local.conf
+nginx/*-prod.conf
+
+# Пользовательские файлы для разных окружений
+.user-*
+

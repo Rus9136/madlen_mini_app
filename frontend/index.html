@@ -80,10 +80,16 @@
     </div>
 
     <script>
+        // Базовый путь для приложения
+        window.App = {
+            basePath: '/miniapp',
+            apiBaseUrl: '/miniapp/api/v1'
+        };
+        
         // Проверяем, запущено ли приложение в Telegram
         if (!window.Telegram || !window.Telegram.WebApp) {
             // Если нет, перенаправляем на локальную версию
-            window.location.href = '/local.html';
+            window.location.href = window.App.basePath + '/local.html';
         }
     </script>
     <script src="js/main.js" type="module"></script>
