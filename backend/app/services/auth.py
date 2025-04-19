@@ -49,44 +49,37 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme), 
     db: Session = Depends(get_db)
 ) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        telegram_id: str = payload.get("sub")
-        if telegram_id is None:
-            raise credentials_exception
-        token_data = TokenData(telegram_id=telegram_id, role=payload.get("role"))
-    except JWTError:
-        raise credentials_exception
+    # Всегда возвращаем некий базовый пользовательский объект, авторизация отключена
+    user = db.query(User).filter(User.id == 1).first()
     
-    user = db.query(User).filter(User.telegram_id == token_data.telegram_id).first()
-    if user is None:
-        raise credentials_exception
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # Если пользователя нет в базе, создаем его
+    if not user:
+        user = User(
+            id=1,
+            telegram_id="111111111",
+            username="admin",
+            full_name="Admin User",
+            role="admin",
+            is_active=True
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
     return user
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # Всегда считаем пользователя активным
     return current_user
 
 
 def check_user_role(required_roles: list):
     """
-    Декоратор для проверки роли пользователя
+    Декоратор для проверки роли пользователя (авторизация отключена)
     """
     async def dependency(current_user: User = Depends(get_current_user)):
-        if current_user.role not in required_roles:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions"
-            )
+        # Всегда разрешаем доступ
         return current_user
     return dependency
 

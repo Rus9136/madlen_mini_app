@@ -13,6 +13,7 @@ window.App = {
     backButton: null,
     mainButton: null,
     user: null,
+    // Устанавливаем путь к API
     // Используем относительный URL для API, чтобы он работал через nginx
     apiBaseUrl: '/api/v1',
     routes: {
@@ -48,64 +49,6 @@ async function initApp() {
     } catch (error) {
         console.error('Ошибка инициализации приложения:', error);
         showError('Ошибка инициализации приложения. Пожалуйста, перезапустите.');
-    }
-}
-
-// Аутентификация пользователя через Telegram
-async function authenticateUser() {
-    try {
-        showLoader();
-        
-        // Получаем initData от Telegram WebApp
-        const initData = window.App.tg.initData;
-        
-        if (!initData) {
-            throw new Error('Нет данных инициализации Telegram');
-        }
-        
-        try {
-            // Отправляем запрос на бэкенд для аутентификации
-            const response = await fetch(`${window.App.apiBaseUrl}/auth/telegram-auth`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `_auth=${encodeURIComponent(initData)}`
-            });
-            
-            if (!response.ok) {
-                throw new Error('Ошибка аутентификации');
-            }
-            
-            const data = await response.json();
-            
-            // Сохраняем токен
-            setToken(data.access_token);
-            
-            hideLoader();
-            return true;
-        } catch (apiError) {
-            console.warn('Ошибка API аутентификации:', apiError);
-            
-            // В режиме разработки используем тестовый токен
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log('Используем тестовый токен для локальной разработки');
-                
-                // Генерируем фиктивный токен для тестирования
-                const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTUyOTk3NjEiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE5OTk5OTk5OTl9.HG7oZFS2UuFd1yzL_RwJI5jK5zMC92F4-Ru72r_D';
-                setToken(testToken);
-                
-                hideLoader();
-                return true;
-            }
-            
-            throw apiError;
-        }
-    } catch (error) {
-        console.error('Ошибка аутентификации:', error);
-        showError('Ошибка аутентификации. Пожалуйста, перезапустите приложение.');
-        hideLoader();
-        return false;
     }
 }
 
