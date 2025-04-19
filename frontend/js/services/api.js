@@ -4,20 +4,16 @@ import { showError } from '../components/ui.js';
 // Базовый URL API
 const API_BASE_URL = window.App?.apiBaseUrl || '/miniapp/api/v1';
 
-// Обертка для fetch с обработкой ошибок и авторизацией
+// Обертка для fetch с обработкой ошибок (авторизация отключена)
 async function fetchWithAuth(url, options = {}) {
     try {
-        // Проверяем срок действия токена
-        if (isTokenExpired()) {
-            showError('Сессия истекла. Необходимо перезапустить приложение.');
-            logout();
-            return null;
-        }
+        // Не проверяем срок действия токена, авторизация отключена
         
-        // Добавляем заголовки авторизации
+        // Добавляем заголовки с тестовым токеном
         const headers = {
             ...options.headers,
-            ...getAuthHeaders()
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTUyOTk3NjEiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE5OTk5OTk5OTl9.HG7oZFS2UuFd1yzL_RwJI5jK5zMC92F4-Ru72r_D',
+            'Content-Type': 'application/json'
         };
         
         // Выполняем запрос
@@ -28,14 +24,7 @@ async function fetchWithAuth(url, options = {}) {
         
         // Проверяем статус ответа
         if (!response.ok) {
-            // Если статус 401, значит проблема с авторизацией
-            if (response.status === 401) {
-                showError('Сессия истекла. Необходимо перезапустить приложение.');
-                logout();
-                return null;
-            }
-            
-            // Для остальных ошибок пытаемся получить информацию об ошибке из ответа
+            // Для ошибок пытаемся получить информацию об ошибке из ответа
             const errorData = await response.json().catch(() => ({}));
             const errorMessage = errorData.detail || `Ошибка ${response.status}: ${response.statusText}`;
             throw new Error(errorMessage);

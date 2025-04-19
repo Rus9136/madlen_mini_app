@@ -24,7 +24,6 @@ async def get_sales(
     store_id: Optional[str] = Query(None, description="ID магазина"),
     warehouse_id: Optional[str] = Query(None, description="ID склада"),
     category_id: Optional[str] = Query(None, description="ID категории"),
-    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -39,14 +38,7 @@ async def get_sales(
             category_id=category_id
         )
         
-        # Логируем действие пользователя
-        log_action = UserAction(
-            user_id=current_user.id,
-            action_type="view_sales",
-            action_details=f"Просмотр продаж за период: {period}"
-        )
-        db.add(log_action)
-        db.commit()
+        # Не логируем действия пользователя, авторизация отключена
         
         # Запрашиваем данные из 1С
         sales_data = await onec_service.get_sales_data(filter_params)
@@ -59,9 +51,7 @@ async def get_sales(
 
 
 @router.get("/stores", response_model=StoresResponse)
-async def get_stores(
-    current_user: User = Depends(get_current_active_user)
-):
+async def get_stores():
     """
     Получение списка магазинов из 1С
     """
@@ -76,8 +66,7 @@ async def get_stores(
 
 @router.get("/warehouses", response_model=WarehousesResponse)
 async def get_warehouses(
-    store_id: Optional[str] = Query(None, description="ID магазина для фильтрации складов"),
-    current_user: User = Depends(get_current_active_user)
+    store_id: Optional[str] = Query(None, description="ID магазина для фильтрации складов")
 ):
     """
     Получение списка складов из 1С

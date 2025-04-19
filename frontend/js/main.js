@@ -32,10 +32,10 @@ async function initApp() {
         window.App.backButton = tg.BackButton;
         window.App.mainButton = tg.MainButton;
         
-        // Если пользователь не аутентифицирован, выполняем вход через Telegram
-        if (!isAuthenticated()) {
-            await authenticateUser();
-        }
+        // Пропускаем авторизацию, чтобы приложение было доступно для всех
+        // Устанавливаем тестовый токен для всех
+        const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTUyOTk3NjEiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE5OTk5OTk5OTl9.HG7oZFS2UuFd1yzL_RwJI5jK5zMC92F4-Ru72r_D';
+        setToken(testToken);
         
         // Настраиваем маршрутизацию
         setupRouting();

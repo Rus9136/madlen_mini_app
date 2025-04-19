@@ -1,0 +1,180 @@
+import httpx
+import logging
+from typing import Dict, Any, Optional
+from app.core.config import settings
+from app.schemas.sales import SalesFilter, SalesResponse, OneCProcessRequest, OneCProcessResponse
+
+logger = logging.getLogger(__name__)
+
+class OneCService:
+    """
+    Сервис для взаимодействия с 1С через API.
+    Реализует методы для получения данных о продажах, складах и выполнения процессов.
+    """
+    
+    def __init__(self):
+        """
+        Инициализация сервиса с параметрами подключения из настроек.
+        """
+        self.api_url = settings.ONEC_API_URL
+        self.auth = (settings.ONEC_API_USER, settings.ONEC_API_PASSWORD)
+        self.timeout = 30.0  # Таймаут для запросов в секундах
+        
+    async def _make_request(self, method: str, endpoint: str, data: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Выполнение HTTP-запроса к API 1С.
+        
+        Args:
+            method: HTTP метод (GET, POST, etc.)
+            endpoint: Путь API
+            data: Данные для отправки (для POST, PUT)
+            
+        Returns:
+            Словарь с данными ответа
+        """
+        url = f"{self.api_url}/{endpoint}"
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                if method.upper() == "GET":
+                    response = await client.get(url, auth=self.auth, params=data)
+                else:
+                    response = await client.post(url, auth=self.auth, json=data)
+                
+                response.raise_for_status()
+                return response.json()
+                
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error in 1C API: {e.response.status_code} for {e.request.url}")
+            # В режиме разработки или тестирования возвращаем тестовые данные
+            if settings.ENVIRONMENT != "production":
+                return self._get_test_data(endpoint)
+            raise
+            
+        except Exception as e:
+            logger.exception(f"Error calling 1C API: {e}")
+            # В режиме разработки или тестирования возвращаем тестовые данные
+            if settings.ENVIRONMENT != "production":
+                return self._get_test_data(endpoint)
+            raise
+    
+    def _get_test_data(self, endpoint: str) -> Dict[str, Any]:
+        """
+        Возвращает тестовые данные для разработки и тестирования.
+        
+        Args:
+            endpoint: Путь API
+            
+        Returns:
+            Словарь с тестовыми данными
+        """
+        # Тестовые данные для разных эндпоинтов
+        if "sales" in endpoint:
+            return {
+                "total_sales": 125000.50,
+                "total_count": 42,
+                "average_check": 2976.20,
+                "period": "today",
+                "by_hour": [
+                    {"hour": "09:00", "sales": 15000.0, "count": 5},
+                    {"hour": "10:00", "sales": 25000.0, "count": 8},
+                    {"hour": "11:00", "sales": 30000.0, "count": 10},
+                    {"hour": "12:00", "sales": 20000.0, "count": 7},
+                    {"hour": "13:00", "sales": 15000.0, "count": 5},
+                    {"hour": "14:00", "sales": 20000.5, "count": 7}
+                ],
+                "by_category": [
+                    {"name": "Электроника", "sales": 50000.0, "count": 15},
+                    {"name": "Одежда", "sales": 30000.0, "count": 10},
+                    {"name": "Продукты", "sales": 25000.0, "count": 9},
+                    {"name": "Товары для дома", "sales": 20000.5, "count": 8}
+                ]
+            }
+        elif "stores" in endpoint:
+            return {
+                "stores": [
+                    {"id": "store1", "name": "Магазин 1", "address": "ул. Примерная, 1"},
+                    {"id": "store2", "name": "Магазин 2", "address": "ул. Тестовая, 2"},
+                    {"id": "store3", "name": "Магазин 3", "address": "пр. Образцовый, 3"}
+                ]
+            }
+        elif "warehouses" in endpoint:
+            return {
+                "warehouses": [
+                    {"id": "wh1", "name": "Склад 1", "store_id": "store1"},
+                    {"id": "wh2", "name": "Склад 2", "store_id": "store2"},
+                    {"id": "wh3", "name": "Склад 3", "store_id": "store3"}
+                ]
+            }
+        elif "process" in endpoint:
+            return {
+                "success": True,
+                "process_id": "test-process-123",
+                "status": "completed",
+                "message": "Процесс успешно выполнен",
+                "result": {
+                    "data": "Тестовые данные результата процесса"
+                }
+            }
+        else:
+            return {
+                "message": "Тестовые данные для неизвестного эндпоинта",
+                "success": True
+            }
+    
+    async def get_sales_data(self, filter_params: SalesFilter) -> SalesResponse:
+        """
+        Получение данных о продажах с фильтрацией.
+        
+        Args:
+            filter_params: Параметры фильтрации
+            
+        Returns:
+            Данные о продажах
+        """
+        # Преобразуем фильтр в параметры запроса
+        params = filter_params.dict(exclude_none=True)
+        
+        # Выполняем запрос к 1С
+        data = await self._make_request("GET", "sales", params)
+        
+        # Возвращаем данные как объект SalesResponse
+        return SalesResponse(**data)
+    
+    async def get_stores(self):
+        """
+        Получение списка магазинов.
+        
+        Returns:
+            Список магазинов
+        """
+        return await self._make_request("GET", "stores")
+    
+    async def get_warehouses(self, store_id: Optional[str] = None):
+        """
+        Получение списка складов с возможной фильтрацией по магазину.
+        
+        Args:
+            store_id: ID магазина для фильтрации
+            
+        Returns:
+            Список складов
+        """
+        params = {"store_id": store_id} if store_id else None
+        return await self._make_request("GET", "warehouses", params)
+    
+    async def run_process(self, process_request: OneCProcessRequest) -> OneCProcessResponse:
+        """
+        Запуск процесса в 1С.
+        
+        Args:
+            process_request: Данные для запуска процесса
+            
+        Returns:
+            Результат выполнения процесса
+        """
+        data = process_request.dict()
+        response_data = await self._make_request("POST", "process/run", data)
+        return OneCProcessResponse(**response_data)
+
+# Создаем экземпляр сервиса
+onec_service = OneCService()

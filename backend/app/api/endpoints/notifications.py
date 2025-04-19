@@ -17,15 +17,15 @@ async def get_notifications(
     limit: int = Query(20, ge=1, le=100),
     category: Optional[str] = Query(None, description="Фильтр по категории уведомлений"),
     is_read: Optional[bool] = Query(None, description="Фильтр по статусу прочтения"),
-    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
     Получение списка уведомлений для текущего пользователя
     """
+    # Используем фиксированный user_id для всех запросов, так как авторизация отключена
     result = await notification_service.get_notifications(
         db=db,
-        user_id=current_user.id,
+        user_id=1,  # Фиксированный ID пользователя
         skip=skip,
         limit=limit,
         category=category,
@@ -38,7 +38,6 @@ async def get_notifications(
 @router.post("/mark-read/{notification_id}", response_model=Notification)
 async def mark_notification_as_read(
     notification_id: int = Path(...),
-    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -47,7 +46,7 @@ async def mark_notification_as_read(
     notification = await notification_service.mark_notification_as_read(
         db=db,
         notification_id=notification_id,
-        user_id=current_user.id
+        user_id=1  # Фиксированный ID пользователя
     )
     
     if not notification:
@@ -62,7 +61,6 @@ async def mark_notification_as_read(
 @router.post("/mark-all-read", response_model=dict)
 async def mark_all_notifications_as_read(
     category: Optional[str] = Query(None, description="Категория уведомлений для пометки (все, если не указана)"),
-    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -70,7 +68,7 @@ async def mark_all_notifications_as_read(
     """
     count = await notification_service.mark_all_as_read(
         db=db,
-        user_id=current_user.id,
+        user_id=1,  # Фиксированный ID пользователя
         category=category
     )
     
@@ -80,7 +78,6 @@ async def mark_all_notifications_as_read(
 @router.delete("/{notification_id}", response_model=dict)
 async def delete_notification(
     notification_id: int = Path(...),
-    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -89,7 +86,7 @@ async def delete_notification(
     success = await notification_service.delete_notification(
         db=db,
         notification_id=notification_id,
-        user_id=current_user.id
+        user_id=1  # Фиксированный ID пользователя
     )
     
     if not success:
@@ -101,7 +98,7 @@ async def delete_notification(
     return {"success": True}
 
 
-@router.post("/create", response_model=Notification, dependencies=[Depends(get_current_admin)])
+@router.post("/create", response_model=Notification)
 async def create_notification(
     notification: NotificationCreate,
     db: Session = Depends(get_db)
@@ -117,7 +114,7 @@ async def create_notification(
     return db_notification
 
 
-@router.post("/create-for-role", response_model=dict, dependencies=[Depends(get_current_admin)])
+@router.post("/create-for-role", response_model=dict)
 async def create_notifications_for_role(
     role: str = Query(..., description="Роль пользователей (employee, manager, admin)"),
     category: str = Query(..., description="Категория уведомления"),

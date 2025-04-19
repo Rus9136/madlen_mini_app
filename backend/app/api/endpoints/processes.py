@@ -15,21 +15,13 @@ logger = logging.getLogger(__name__)
 @router.post("/run", response_model=OneCProcessResponse)
 async def run_process(
     process_request: OneCProcessRequest,
-    current_user: User = Depends(get_current_manager),  # Только менеджеры и админы
     db: Session = Depends(get_db)
 ):
     """
     Запуск обработки в 1С
     """
     try:
-        # Логируем действие пользователя
-        log_action = UserAction(
-            user_id=current_user.id,
-            action_type="run_process",
-            action_details=f"Запуск обработки: {process_request.process_name}"
-        )
-        db.add(log_action)
-        db.commit()
+        # Не логируем действия пользователя, так как авторизация отключена
         
         # Запускаем процесс в 1С
         result = await onec_service.run_process(process_request)
@@ -57,14 +49,7 @@ async def update_stock(
             parameters={"warehouseId": warehouse_id} if warehouse_id else {}
         )
         
-        # Логируем действие пользователя
-        log_action = UserAction(
-            user_id=current_user.id,
-            action_type="update_stock",
-            action_details=f"Обновление остатков на складе: {warehouse_id if warehouse_id else 'все склады'}"
-        )
-        db.add(log_action)
-        db.commit()
+        # Не логируем действия пользователя, так как авторизация отключена
         
         # Запускаем процесс в 1С
         result = await onec_service.run_process(process_request)
@@ -82,7 +67,6 @@ async def generate_report(
     period: str = Body("today", embed=True),
     store_id: str = Body(None, embed=True),
     warehouse_id: str = Body(None, embed=True),
-    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -100,14 +84,7 @@ async def generate_report(
             }
         )
         
-        # Логируем действие пользователя
-        log_action = UserAction(
-            user_id=current_user.id,
-            action_type="generate_report",
-            action_details=f"Генерация отчета: {report_type}, период: {period}"
-        )
-        db.add(log_action)
-        db.commit()
+        # Не логируем действия пользователя, так как авторизация отключена
         
         # Запускаем процесс в 1С
         result = await onec_service.run_process(process_request)
