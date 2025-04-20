@@ -248,4 +248,4 @@ export function setupTelegramMock() {
     }
 }
 
-export default setupTelegramMock;
+export { setupTelegramMock };

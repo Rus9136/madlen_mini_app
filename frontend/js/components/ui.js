@@ -24,8 +24,20 @@ export function showLoader() {
 
 // Скрыть загрузчик
 export function hideLoader() {
-    if (loadingElement) {
-        loadingElement.style.display = 'none';
+    // Попробуем найти элемент снова, если он ещё не был найден
+    const loaderEl = loadingElement || document.getElementById('loading');
+    
+    if (loaderEl) {
+        console.log('Loader element found, hiding it');
+        loaderEl.style.display = 'none';
+    } else {
+        console.error('Loader element not found!');
+        // Попробуем найти его по CSS-селектору
+        const loaders = document.querySelectorAll('.flex.items-center.justify-center.min-h-screen');
+        if (loaders.length > 0) {
+            console.log('Found loader by class');
+            loaders.forEach(loader => loader.style.display = 'none');
+        }
     }
 }
 

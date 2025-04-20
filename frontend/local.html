@@ -1,4 +1,13 @@
-<!DOCTYPE html>
+    <script>
+        // На случай если все скрипты не сработают
+        setTimeout(function() {
+            const loadingElement = document.getElementById('loading');
+            if (loadingElement && loadingElement.style.display !== 'none') {
+                console.log('Loading still visible after 10 seconds, redirecting to standalone version');
+                window.location.href = 'standalone.html';
+            }
+        }, 10000);
+    </script><!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -74,7 +83,17 @@
         </div>
     </div>
     
+    <script src="js/fix-loader.js"></script>
+    <script src="js/stub.js"></script>
+    <script src="js/direct-render.js"></script>
+    <script src="js/direct-styles.js"></script>
     <script>
+        // Конфигурация приложения
+        window.AppConfig = {
+            basePath: '/',
+            apiBaseUrl: '/api/v1'
+        };
+        
         // Информация о пользователе
         window.userInfo = {
             id: 555299761,
@@ -158,7 +177,6 @@
             document.body.appendChild(logButton);
         });
     </script>
-    
     <script src="js/main.js" type="module"></script>
 </body>
 </html>

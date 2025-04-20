@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram Mini App - Автономный режим</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #222222;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .tg-button {
+            background-color: #3390ec;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tg-button:hover {
+            filter: brightness(0.95);
+        }
+        
+        .tg-secondary-bg {
+            background-color: #f0f0f0;
+        }
+        
+        .tg-hint {
+            color: #999999;
+        }
+        
+        .header-banner {
+            background-color: #3390ec;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-banner">
+        <p>⚠️ Автономный режим - Telegram Mini App</p>
+    </div>
+    
+    <div id="app" class="flex flex-col min-h-screen">
+        <div class="flex flex-col p-4">
+            <!-- Заголовок страницы -->
+            <div class="mb-6 text-center">
+                <h1 class="text-2xl font-bold mb-2">Корпоративное приложение</h1>
+                <p class="text-sm tg-hint">Информационная система для сотрудников компании</p>
+            </div>
+            
+            <!-- Секция с кнопками быстрого доступа -->
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div>
+                    <button class="tg-button w-full flex flex-col items-center justify-center p-5 h-28" onclick="alert('Функция продаж временно недоступна')">
+                        <i class="fas fa-chart-line mb-2"></i>
+                        Продажи
+                    </button>
+                </div>
+                <div>
+                    <button class="tg-button w-full flex flex-col items-center justify-center p-5 h-28" onclick="alert('Функция уведомлений временно недоступна')">
+                        <i class="fas fa-bell mb-2"></i>
+                        Уведомления
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Дополнительные кнопки -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <button class="tg-button w-full flex flex-col items-center justify-center p-5 h-28" onclick="alert('Функция обработок временно недоступна')">
+                        <i class="fas fa-cogs mb-2"></i>
+                        Обработки
+                    </button>
+                </div>
+                <div>
+                    <!-- Пустая ячейка для баланса -->
+                </div>
+            </div>
+            
+            <!-- Информационная карточка -->
+            <div class="p-3 mb-3 rounded-lg tg-secondary-bg mt-6">
+                <h3 class="text-lg font-bold mb-2">Информация</h3>
+                <div>
+                    <p class="mb-2">Добро пожаловать в корпоративное приложение для сотрудников компании.</p>
+                    <p>Используйте меню выше для доступа к различным разделам системы.</p>
+                </div>
+            </div>
+            
+            <!-- Информация о технических проблемах -->
+            <div class="p-3 mb-3 rounded-lg bg-yellow-100 text-yellow-800 mt-6">
+                <h3 class="text-lg font-bold mb-2">Техническая информация</h3>
+                <div>
+                    <p class="mb-2">В настоящий момент приложение работает в автономном режиме.</p>
+                    <p>Некоторые функции могут быть недоступны до полного восстановления соединения с сервером.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Standalone mode loaded successfully');
+        });
+    </script>
+</body>
+</html>

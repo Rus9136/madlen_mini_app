@@ -2,7 +2,8 @@ import { getAuthHeaders, isTokenExpired, logout } from './auth.js';
 import { showError } from '../components/ui.js';
 
 // Базовый URL API
-const API_BASE_URL = window.App?.apiBaseUrl || '/api/v1';
+const API_BASE_URL = window.App?.apiBaseUrl || window.AppConfig?.apiBaseUrl || '/api/v1';
+console.log('Using API BASE URL:', API_BASE_URL);
 
 // Обертка для fetch с обработкой ошибок (авторизация отключена)
 async function fetchWithAuth(url, options = {}) {

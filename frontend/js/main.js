@@ -13,9 +13,9 @@ window.App = {
     backButton: null,
     mainButton: null,
     user: null,
-    // Устанавливаем путь к API
+    // Устанавливаем путь к API из конфигурации
     // Используем относительный URL для API, чтобы он работал через nginx
-    apiBaseUrl: '/api/v1',
+    apiBaseUrl: window.AppConfig?.apiBaseUrl || '/api/v1',
     routes: {
         'home': renderHomePage,
         'sales': renderSalesPage,
@@ -44,8 +44,12 @@ async function initApp() {
         // Рендерим главную страницу по умолчанию
         navigateTo('home');
         
-        // Скрываем загрузчик
-        hideLoader();
+        // Скрываем загрузчик с небольшой задержкой, чтобы убедиться, что DOM готов
+        console.log('Hiding loader...');
+        setTimeout(() => {
+            hideLoader();
+            console.log('Loader hidden');
+        }, 500);
     } catch (error) {
         console.error('Ошибка инициализации приложения:', error);
         showError('Ошибка инициализации приложения. Пожалуйста, перезапустите.');

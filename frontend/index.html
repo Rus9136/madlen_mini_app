@@ -69,6 +69,17 @@
             border-radius: 4px;
         }
     </style>
+    <!-- Перенаправление на standalone версию, если загрузка зависла -->
+    <script>
+        // На случай если все скрипты не сработают
+        setTimeout(function() {
+            const loadingElement = document.getElementById('loading');
+            if (loadingElement && loadingElement.style.display !== 'none') {
+                console.log('Loading still visible after 10 seconds, redirecting to standalone version');
+                window.location.href = 'standalone.html';
+            }
+        }, 10000);
+    </script>
 </head>
 <body>
     <div id="app" class="flex flex-col min-h-screen">
@@ -79,17 +90,21 @@
         </div>
     </div>
 
+    <script src="js/fix-loader.js"></script>
+    <script src="js/stub.js"></script>
+    <script src="js/direct-render.js"></script>
+    <script src="js/direct-styles.js"></script>
     <script>
         // Базовый путь для приложения
-        window.App = {
-            basePath: '/miniapp',
-            apiBaseUrl: '/miniapp/api/v1'
+        window.AppConfig = {
+            basePath: '/',
+            apiBaseUrl: '/api/v1'
         };
         
         // Проверяем, запущено ли приложение в Telegram
         if (!window.Telegram || !window.Telegram.WebApp) {
             // Если нет, перенаправляем на локальную версию
-            window.location.href = window.App.basePath + '/local.html';
+            window.location.href = window.AppConfig.basePath + '/local.html';
         }
     </script>
     <script src="js/main.js" type="module"></script>

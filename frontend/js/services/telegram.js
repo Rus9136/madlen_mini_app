@@ -1,5 +1,5 @@
 // Импортируем мок для локальной разработки
-import './telegram_mock.js';
+import { setupTelegramMock } from './telegram_mock.js';
 
 // Инициализация Telegram WebApp
 export function initTelegramApp() {

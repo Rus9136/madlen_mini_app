@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Установка зависимостей
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && pip install --no-cache-dir pydantic-settings==2.1.0
 
 # Копирование исходного кода приложения
 COPY . .
